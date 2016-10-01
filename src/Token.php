@@ -25,139 +25,63 @@ class Token
     /**
      * The token headers
      *
-     * @var array
+     * @var DataSet
      */
     private $headers;
 
     /**
      * The token claim set
      *
-     * @var array
+     * @var DataSet
      */
     private $claims;
 
     /**
      * The token signature
      *
-     * @var Signature
+     * @var Signature|null
      */
     private $signature;
 
     /**
-     * The encoded data
-     *
-     * @var array
-     */
-    private $payload;
-
-    /**
      * Initializes the object
      *
-     * @param array $headers
-     * @param array $claims
+     * @param DataSet $headers
+     * @param DataSet $claims
      * @param Signature|null $signature
-     * @param array $payload
      */
     public function __construct(
-        array $headers = ['alg' => 'none'],
-        array $claims = [],
-        Signature $signature = null,
-        array $payload = ['', '']
+        DataSet $headers,
+        DataSet $claims,
+        Signature $signature = null
     ) {
         $this->headers = $headers;
         $this->claims = $claims;
         $this->signature = $signature;
-        $this->payload = $payload;
     }
 
     /**
      * Returns the token headers
-     *
-     * @return array
      */
-    public function getHeaders(): array
+    public function headers(): DataSet
     {
         return $this->headers;
     }
 
     /**
-     * Returns if the header is configured
-     *
-     * @param string $name
-     *
-     * @return bool
-     */
-    public function hasHeader(string $name): bool
-    {
-        return array_key_exists($name, $this->headers);
-    }
-
-    /**
-     * Returns the value of a token header
-     *
-     * @param string $name
-     * @param mixed $default
-     *
-     * @return mixed
-     *
-     * @throws OutOfBoundsException
-     */
-    public function getHeader(string $name, $default = null)
-    {
-        if ($this->hasHeader($name)) {
-            return $this->headers[$name];
-        }
-
-        if ($default === null) {
-            throw new OutOfBoundsException('Requested header is not configured');
-        }
-
-        return $default;
-    }
-
-    /**
      * Returns the token claim set
-     *
-     * @return array
      */
-    public function getClaims(): array
+    public function claims(): DataSet
     {
         return $this->claims;
     }
 
     /**
-     * Returns if the claim is configured
-     *
-     * @param string $name
-     *
-     * @return bool
+     * @return Signature|null
      */
-    public function hasClaim(string $name): bool
+    public function signature()
     {
-        return array_key_exists($name, $this->claims);
-    }
-
-    /**
-     * Returns the value of a token claim
-     *
-     * @param string $name
-     * @param mixed $default
-     *
-     * @return mixed
-     *
-     * @throws OutOfBoundsException
-     */
-    public function getClaim(string $name, $default = null)
-    {
-        if ($this->hasClaim($name)) {
-            return $this->claims[$name];
-        }
-
-        if ($default === null) {
-            throw new OutOfBoundsException('Requested claim is not configured');
-        }
-
-        return $default;
+        return $this->signature;
     }
 
     /**
@@ -186,7 +110,7 @@ class Token
      */
     public function isExpired(DateTimeInterface $now = null)
     {
-        $exp = $this->getClaim('exp', false);
+        $exp = $this->claims()->get('exp', false);
 
         if ($exp === false) {
             return false;

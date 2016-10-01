@@ -252,6 +252,20 @@ class Builder
         return $this;
     }
 
+    private function encodeHeaders()
+    {
+        return $this->encoder->base64UrlEncode(
+            $this->encoder->jsonEncode($this->headers)
+        );
+    }
+
+    private function encodeClaims()
+    {
+        return $this->encoder->base64UrlEncode(
+            $this->encoder->jsonEncode($this->claims)
+        );
+    }
+
     /**
      * Returns the resultant token
      *
@@ -271,10 +285,9 @@ class Builder
         }
 
         return new Token(
-            $this->headers,
-            $this->claims,
-            $signature,
-            $payload
+            new DataSet($this->headers, $this->encodeHeaders()),
+            new DataSet($this->claims, $this->encodeClaims()),
+            $signature
         );
     }
 }
