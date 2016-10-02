@@ -24,6 +24,7 @@ final class SignedWith implements Constraint
      * @var Signer
      */
     private $signer;
+
     /**
      * @var Signer\Key
      */
@@ -40,7 +41,13 @@ final class SignedWith implements Constraint
      */
     public function validate(Token $token)
     {
-        if (!$token->verify($this->signer, $this->key)) {
+        $signature = $token->signature();
+
+        if ($signature === null) {
+            throw new ConstraintViolationException('The token is not signed');
+        }
+
+        if ($this->signer->verify($signature->hash(), $token->payload(), $this->key)) {
             throw new ConstraintViolationException('The token signature mismatch');
         }
     }

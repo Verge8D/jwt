@@ -666,9 +666,8 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
 
         $token = $builder->getToken();
 
-        self::assertAttributeEquals(['1', '2', '3'], 'payload', $token);
-        self::assertAttributeEquals($token->getHeaders(), 'headers', $builder);
-        self::assertAttributeEquals($token->getClaims(), 'claims', $builder);
+        self::assertAttributeEquals($token->headers()->all(), 'headers', $builder);
+        self::assertAttributeEquals($token->claims()->all(), 'claims', $builder);
         self::assertAttributeNotEmpty('signature', $builder);
     }
 }

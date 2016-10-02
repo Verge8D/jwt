@@ -11,8 +11,6 @@ namespace Lcobucci\JWT;
 
 use DateTime;
 use DateTimeInterface;
-use Lcobucci\JWT\Signer\Key;
-use OutOfBoundsException;
 
 /**
  * Basic structure of the JWT
@@ -85,23 +83,6 @@ class Token
     }
 
     /**
-     * Verify if the key matches with the one that created the signature
-     *
-     * @param Signer $signer
-     * @param Key $key
-     *
-     * @return bool
-     */
-    public function verify(Signer $signer, Key $key): bool
-    {
-        if ($this->signature === null || $this->headers['alg'] !== $signer->getAlgorithmId()) {
-            return false;
-        }
-
-        return $this->signature->verify($signer, $this->getPayload(), $key);
-    }
-
-    /**
      * Determine if the token is expired.
      *
      * @param DateTimeInterface $now Defaults to the current time.
@@ -126,27 +107,17 @@ class Token
 
     /**
      * Returns the token payload
-     *
-     * @return string
      */
-    public function getPayload(): string
+    public function payload(): string
     {
-        return $this->payload[0] . '.' . $this->payload[1];
+        return $this->headers . '.' . $this->claims;
     }
 
     /**
      * Returns an encoded representation of the token
-     *
-     * @return string
      */
     public function __toString(): string
     {
-        $data = implode('.', $this->payload);
-
-        if ($this->signature === null) {
-            $data .= '.';
-        }
-
-        return $data;
+        return implode('.', get_object_vars($this));
     }
 }

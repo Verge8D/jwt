@@ -9,8 +9,6 @@ declare(strict_types=1);
 
 namespace Lcobucci\JWT;
 
-use Lcobucci\JWT\Signer\Key;
-
 /**
  * This class represents a token signature
  *
@@ -20,44 +18,31 @@ use Lcobucci\JWT\Signer\Key;
 class Signature
 {
     /**
-     * The resultant hash
-     *
      * @var string
      */
-    protected $hash;
+    private $hash;
 
     /**
-     * Initializes the object
-     *
-     * @param string $hash
+     * @var string
      */
-    public function __construct(string $hash)
+    private $payload;
+
+    public function __construct(string $hash, string $payload)
     {
         $this->hash = $hash;
+        $this->payload = $payload;
     }
 
-    /**
-     * Verifies if the current hash matches with with the result of the creation of
-     * a new signature with given data
-     *
-     * @param Signer $signer
-     * @param string $payload
-     * @param Key $key
-     *
-     * @return bool
-     */
-    public function verify(Signer $signer, string $payload, Key $key): bool
+    public function hash(): string
     {
-        return $signer->verify($this->hash, $payload, $key);
+        return $this->hash;
     }
 
     /**
-     * Returns the current hash as a string representation of the signature
-     *
-     * @return string
+     * Returns the signature payload as a string representation of the signature
      */
     public function __toString(): string
     {
-        return $this->hash;
+        return $this->payload;
     }
 }

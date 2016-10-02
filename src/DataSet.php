@@ -47,6 +47,11 @@ final class DataSet
         return array_key_exists($name, $this->data);
     }
 
+    public function all(): array
+    {
+        return $this->data;
+    }
+
     public function __toString(): string
     {
         return $this->payload;

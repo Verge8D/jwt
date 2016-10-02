@@ -55,11 +55,11 @@ class Parser
             }
         }
 
-        if ($signature === null) {
-            unset($data[2]);
-        }
-
-        return new Token($header, $claims, $signature, $data);
+        return new Token(
+            new DataSet($header, $data[0]),
+            new DataSet($claims, $data[1]),
+            $signature
+        );
     }
 
     /**
@@ -71,7 +71,7 @@ class Parser
      *
      * @throws InvalidArgumentException When JWT don't have all parts
      */
-    protected function splitJwt(string $jwt): array
+    private function splitJwt(string $jwt): array
     {
         $data = explode('.', $jwt);
 
@@ -91,7 +91,7 @@ class Parser
      *
      * @throws InvalidArgumentException When an invalid header is informed
      */
-    protected function parseHeader(string $data): array
+    private function parseHeader(string $data): array
     {
         $header = (array) $this->decoder->jsonDecode($this->decoder->base64UrlDecode($data));
 
@@ -109,7 +109,7 @@ class Parser
      *
      * @return array
      */
-    protected function parseClaims(string $data): array
+    private function parseClaims(string $data): array
     {
         return (array) $this->decoder->jsonDecode($this->decoder->base64UrlDecode($data));
     }
@@ -122,7 +122,7 @@ class Parser
      *
      * @return Signature|null
      */
-    protected function parseSignature(array $header, string $data)
+    private function parseSignature(array $header, string $data)
     {
         if ($data === '' || !isset($header['alg']) || $header['alg'] === 'none') {
             return null;
@@ -130,6 +130,6 @@ class Parser
 
         $hash = $this->decoder->base64UrlDecode($data);
 
-        return new Signature($hash);
+        return new Signature($hash, $data);
     }
 }

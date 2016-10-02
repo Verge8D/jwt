@@ -232,7 +232,7 @@ class Builder
         $this->headers['alg'] = $signer->getAlgorithmId();
 
         $this->signature = $signer->sign(
-            $this->getToken()->getPayload(),
+            $this->getToken()->payload(),
             $key
         );
 
@@ -273,21 +273,20 @@ class Builder
      */
     public function getToken(): Token
     {
-        $signature = null;
-        $payload = [
-            $this->encoder->base64UrlEncode($this->encoder->jsonEncode($this->headers)),
-            $this->encoder->base64UrlEncode($this->encoder->jsonEncode($this->claims))
-        ];
+        $headers = new DataSet($this->headers, $this->encodeHeaders());
+        $claims = new DataSet($this->claims, $this->encodeClaims());
 
-        if ($this->signature !== null) {
-            $payload[] = $this->encoder->base64UrlEncode($this->signature);
-            $signature = new Signature($this->signature);
+        if ($this->signature === null) {
+            return new Token($headers, $claims);
         }
 
         return new Token(
-            new DataSet($this->headers, $this->encodeHeaders()),
-            new DataSet($this->claims, $this->encodeClaims()),
-            $signature
+            $headers,
+            $claims,
+            new Signature(
+                $this->signature,
+                $this->encoder->base64UrlEncode($this->signature)
+            )
         );
     }
 }
